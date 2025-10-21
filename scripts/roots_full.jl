@@ -115,17 +115,16 @@ scatter!(
     Xm .* 1e6,
     Ym .* 1e6,
     Zm .* 1e6,
-    #color=colors,
     group = group,
 )
 
 @info "writing outputs"
-savefig(p, plotsdir("full_roots3d.$(now_nodots()).svg"))
+savefig(p, plotsdir("full_roots3d.N$(size(Grid))-$(now_nodots()).svg"))
 
 
-@save datadir("sims", "roots_full", "sim-N$(size(Grid))-$(now_nodots()).jld2") Xm Ym Zm stability Grid
+@save datadir("sims", "roots_full", "sim.N$(size(Grid)).$(now_nodots()).jld2") Xm Ym Zm stability Grid
 
-open(datadir("sims", "roots_full", "sim-N$(size(Grid)))$(now_nodots()).csv"), "w") do io
+open(datadir("sims", "roots_full", "sim.N$(size(Grid))).$(now_nodots()).csv"), "w") do io
     writedlm(io, ["Xmins", "Ymins", "Zmins", "stability"], ",")
     writedlm(io, hcat(Xm, Ym, Zm, stability), ",")
 end
