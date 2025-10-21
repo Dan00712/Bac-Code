@@ -53,9 +53,9 @@ end
 
 
 Δω = 100
-X = (-zR):(2zR/10):zR .|> BigFloat
-Y = (-zR):(2zR/10):zR .|> BigFloat
-Z = (-zR):(2zR/20):(zR ./ 10) .|> BigFloat
+X = (-zR):(2zR/100):zR .|> BigFloat
+Y = (-zR):(2zR/100):zR .|> BigFloat
+Z = (-zR):(2zR/200):(zR ./ 10) .|> BigFloat
 
 
 @info "constructing Grid"
