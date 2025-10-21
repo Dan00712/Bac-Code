@@ -1,9 +1,6 @@
 module Constants
 
-export ħ, ϵ0, c,
-        λ0, k0, ω0, Pt, Wt, Ax, Ay, E0, zR,
-        ρ, ϵ, α, 
-        Wc, Lc, Vc, κ, ζ
+export ħ, ϵ0, c, λ0, k0, ω0, Pt, Wt, Ax, Ay, E0, zR, ρ, ϵ, α, Wc, Lc, Vc, κ, ζ
 
 # using SI Units
 const ħ = 6.626e-34       # Js
@@ -26,7 +23,7 @@ const Ay = 1
 const zR = 1/2 * k0 * Wt^2
 
 
-const E0 = sqrt(4*Pt /π /ϵ0 /c /Wt^2 /Ax^2 /Ay)
+const E0 = sqrt(4*Pt / π / ϵ0 / c / Wt^2 / Ax^2 / Ay)
 
 # SiO₂
 const ρ = 2200               # kg/m^3
