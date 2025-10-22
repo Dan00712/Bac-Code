@@ -26,26 +26,6 @@ end
 HL(x, y, z, Δω) = ForwardDiff.hessian(r->L(r..., Δω), [x, y, z])
 
 
-function isminima(G, i, j, k)
-    imax, jmax, kmax = size(G)
-
-    if i == 1 || i == imax || j == 1 || j == jmax || k == 1 || k == kmax
-        return false
-    end
-
-    if G[i, j, k] >= G[i+1, j, k] || G[i, j, k] >= G[i-1, j, k]
-        return false
-    end
-    if G[i, j, k] >= G[i, j+1, k] || G[i, j, k] >= G[i, j-1, k]
-        return false
-    end
-
-    if G[i, j, k] >= G[i, j, k+1] || G[i, j, k] >= G[i, j, k-1]
-        return false
-    end
-
-    return true
-end
 
 function isstable(x, y, z, Δω)
     isposdef(HL(x, y, z, Δω))
@@ -53,9 +33,9 @@ end
 
 
 Δω = 100
-X = (-zR):(2zR/100):zR .|> BigFloat
-Y = (-zR):(2zR/100):zR .|> BigFloat
-Z = ((-zR):(2zR/200):zR) ./ 10 .|> BigFloat
+X = (-zR):(2zR/10):zR .|> BigFloat
+Y = (-zR):(2zR/10):zR .|> BigFloat
+Z = ((-zR):(2zR/20):zR) ./ 10 .|> BigFloat
 
 
 @info "constructing Grid"
