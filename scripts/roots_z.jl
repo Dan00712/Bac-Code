@@ -58,18 +58,18 @@ function L(z, Δω)
 end
 
 # Δω = 0:2ω0
-Ωs = 10 .^(-2:8/100:6)
-Zs = (-zR:2zR/200:zR) ./1e1
+Ωs = 10 .^(-2:12/200:10)
+Zs = (-zR:2zR/200:zR) ./5e0
 @debug "" Zs length(Zs)
 
-function get_roots(Δω)
+function get_roots(Δω; atol=1e-40)
     f(z) = L(z, Δω)
 
     guesses = get_guesses(f, Zs)
 
     zmin = BigFloat[]
     for guess in guesses
-        x, convergent = newton_1d(guess, f)
+        x, convergent = newton_1d(guess, f, atol=atol)
         if convergent
             push!(
                   zmin,
@@ -89,14 +89,14 @@ zmins = Float64[]; #BigFloat[]
 
 
 for  ω in Ωs
-    zmins_ = get_roots(ω)
+    zmins_ = get_roots(ω, atol=1e-40)
     #@info "" zmins_
 
     append!(zmins, zmins_)
     append!(ωs, [ω for _ in zmins_])
 end
 p = plot(;
-         ylims=(-1, 1)./1e5,
+         #ylims=(-1, 1)./1e32,
          xlabel="Δω/s^-1",
          ylabel="z/zR",
          xaxis=:log,
