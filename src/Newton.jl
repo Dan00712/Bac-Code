@@ -39,7 +39,7 @@ function newton_1d(init, f::Function; max_iters = 100, atol = 1e-10)
 
     convergent = abs(x-xprev) < atol
 
-    x, convergent
+    (x, convergent)
 end
 
 end # module

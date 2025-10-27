@@ -51,16 +51,15 @@ end
 
 # function to minimize
 function L(z, Δω)
-    -(z * 
-        (1+ γ(0,0,z, Δω)*δc(0,0,z, Δω)) * 
-        (1/(zR^2 + z^2) + 2/Wc^2 * γ(0,0,z, Δω)*δc(0,0,z, Δω)) +
-    γ(0,0,z, Δω) * κ/2 * 
-    (2*z/Wc^2 + zR/(z^2+zR^2) - k0)) * abs2(Et(0,0, z))
+    δγ = δc(0,0,z, Δω)*γ(0,0,z, Δω)
+
+    z*(1/zR^2 + δγ * (1/zR^2 + 2/Wc^2) + 2/Wc^2 * δγ^2 + 2/Wc^2 * (γ(0,0,z, Δω)*κ/2)^2) -
+        γ(0,0, z, Δω) * κ/2/k0 * (k0^2 - 2/Wt^2)
 end
 
 # Δω = 0:2ω0
-Ωs = -ω0:2ω0/100:ω0
-Zs = (-zR:2zR/200:zR) ./1e2
+Ωs = 10 .^(-2:8/100:6)
+Zs = (-zR:2zR/200:zR) ./1e1
 @debug "" Zs length(Zs)
 
 function get_roots(Δω)
@@ -68,29 +67,46 @@ function get_roots(Δω)
 
     guesses = get_guesses(f, Zs)
 
-    zmin = guesses
+    zmin = BigFloat[]
+    for guess in guesses
+        x, convergent = newton_1d(guess, f)
+        if convergent
+            push!(
+                  zmin,
+                  x
+                 )
+        end
+    end
 
     zmin
 end
 
-ωs    = BigFloat[]
-zmins = BigFloat[]
+ωs    = Float64[]; #BigFloat[]
+zmins = Float64[]; #BigFloat[]
 
 
-@info "Δω = 0" get_minimas(0)
+#@info "Δω = 0" get_roots(0)
 
-p = plot()
 
 for  ω in Ωs
-    zmins_ = get_minimas(ω)
-    @info "" zmins_
+    zmins_ = get_roots(ω)
+    #@info "" zmins_
 
     append!(zmins, zmins_)
-    append!(zmins, [ω for _ in zmins_])
+    append!(ωs, [ω for _ in zmins_])
 end
-scatter!(p, ωs, zmins)
+p = plot(;
+         ylims=(-1, 1)./1e5,
+         xlabel="Δω/s^-1",
+         ylabel="z/zR",
+         xaxis=:log,
+        )
+
+scatter!(p, ωs, zmins./zR,
+        )
 #plot!(p, Zs, L.(Zs,[0]))
 #plot!(p, Zs, (z->∂(x-> Hs(0,0,x, 0), z)).(Zs))
+savefig(p, plotsdir("full_z.N$(size(Zs))-$(now_nodots()).svg"))
 
 gui(p)
 
