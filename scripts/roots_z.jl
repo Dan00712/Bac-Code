@@ -51,18 +51,19 @@ end
 
 # function to minimize
 function L(z, Δω)
-    δγ = δc(0,0,z, Δω)*γ(0,0,z, Δω)
+    γδ = γ(0,0,z, Δω) * δc(0,0,z, Δω)
 
-    z*(1/zR^2 + δγ * (1/zR^2 + 2/Wc^2) + 2/Wc^2 * δγ^2 + 2/Wc^2 * (γ(0,0,z, Δω)*κ/2)^2) -
-        γ(0,0, z, Δω) * κ/2/k0 * (k0^2 - 2/Wt^2)
+    z * (1+γδ)*(1/zR^2 + 2/Wc^2 * γδ) +
+        γ(0,0, z, Δω) * κ/2 * (2*z/Wc^2 + 1/zR - k0)
 end
 
 # Δω = 0:2ω0
 Ωs = 10 .^(-2:12/200:10)
-Zs = (-zR:2zR/200:zR) ./5e0
+Zs = (-zR:2zR/1000:zR) |> x->BigFloat.(x)
+#Zs = range(-zR/5, zR/5; length=200)
 @debug "" Zs length(Zs)
 
-function get_roots(Δω; atol=1e-40)
+function get_roots(Δω; atol=1e-10)
     f(z) = L(z, Δω)
 
     guesses = get_guesses(f, Zs)
@@ -84,12 +85,11 @@ end
 ωs    = Float64[]; #BigFloat[]
 zmins = Float64[]; #BigFloat[]
 
-
 #@info "Δω = 0" get_roots(0)
 
 
-for  ω in Ωs
-    zmins_ = get_roots(ω, atol=1e-40)
+for  ω in ProgressBar(Ωs)
+    zmins_ = get_roots(ω, atol=1e-30)
     #@info "" zmins_
 
     append!(zmins, zmins_)
@@ -97,13 +97,12 @@ for  ω in Ωs
 end
 p = plot(;
          #ylims=(-1, 1)./1e32,
-         xlabel="Δω/s^-1",
-         ylabel="z/zR",
+         xlabel="Δω/[s^-1]",
+         ylabel="z/[m]",
          xaxis=:log,
         )
 
-scatter!(p, ωs, zmins./zR,
-        )
+scatter!(p, ωs, zmins)
 #plot!(p, Zs, L.(Zs,[0]))
 #plot!(p, Zs, (z->∂(x-> Hs(0,0,x, 0), z)).(Zs))
 savefig(p, plotsdir("full_z.N$(size(Zs))-$(now_nodots()).svg"))
