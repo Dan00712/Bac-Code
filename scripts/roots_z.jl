@@ -23,16 +23,13 @@ global_logger(ConsoleLogger(Info))
 
 # function to minimize
 function L(z, Δω, κ)
-    γδ = γ(0,0,z, Δω, κ) * δc(0,0,z, Δω)
-
-    z * (1+γδ)*(1/zR^2 + 2/Wc^2 * γδ) +
-        γ(0,0, z, Δω, κ) * κ/2 * (2*z/Wc^2 + 1/zR - k0)
+    ∂zHs(0,0, z, Δω, κ)
 end
 
 
-Ω = range(start=0, stop=10e6, length=200)
-Z = range(start=-5zR, stop=5zR, length=800)
-const κ = 2π * 1.06e6 /1e2
+Ω = range(start=0, stop=10e6, length=100)
+Z = range(start=-5zR, stop=5zR, length=200)
+const κ = 2π * 1.06e6 /1e1
 
 
 function get_zeros(f)
@@ -51,9 +48,11 @@ for ω in Ω
 end
 
 p = plot(;
+         xlabel="Δ/2π",
+         ylabel="z/zR"
 )
 
-scatter!(p, ωs, zmins)
+scatter!(p, ωs, zmins./zR)
 
 savefig(p, plotsdir("full_z-$(now_nodots()).svg"))
 gui(p)
