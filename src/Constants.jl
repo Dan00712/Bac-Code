@@ -2,6 +2,7 @@ module Constants
 
 export ħ, ϵ0, c, λ0, k0, ω0, Pt, Wt, Ax, Ay, E0, zR, ρ, ϵ, α, Wc, Lc, Vc, κ, ζ
 
+
 # using SI Units
 const ħ = 6.626e-34       # Js
 const ϵ0 = 8.854e-12      # F/m
@@ -38,7 +39,6 @@ const Lc = 6.46e-3      # m
 # keep ω_0 = const
 const Vc = π*Wc^2*Lc/4
 
-const κ = 2π * 1.06e6         # Hz
 const ζ = 1
 
 end # module
