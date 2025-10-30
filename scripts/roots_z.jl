@@ -23,21 +23,43 @@ global_logger(ConsoleLogger(Info))
 
 # function to minimize
 function L(z, Δω, κ)
-    ∂zHs(0, 0, z, Δω, κ)
+    fz = im * (k0 - zR/(z^2+zR^2)) - z/(z^2+zR^2)
+    gz = -2*z/Wc^2
+    γz = γ(0,0,z, Δω, κ)
+    δz = δc(0,0,z,Δω)
+
+    (1+γz*δz)*(real(fz)+ gz*γz*δz) + γz * κ/2 * (imag(fz) + gz*γz*κ/2)
 end
 
-Ω = range(start=0, stop=10e6, length=100)
-Z = range(start=-100zR, stop=100zR, length=35) |> x-> BigFloat.(x)
-const κ = 2π * 1.06e6 /1e2
+Ω = range(0, 1e6, length=75) #(range(start=-5, stop=8, length=75) .|> x->10^x)
+Z = range(start=-25zR, stop=25zR, length=100) |> x-> BigFloat.(x)
+const κ = 2π *1.06e6/10
 
 
 function get_zeros(f)
-    zmin = unique(find_zero(f, z) for z in Z)
+    zmins = []
 
-    zmin
+    for z in Z
+        try
+            zmin = find_zero(f, z)
+            if zmin ∉ zmins
+                push!(zmins, zmin)
+            end
+        catch e
+            if !isa(e, Roots.ConvergenceFailed)
+                rethrow(e)
+            end
+        end
+    end
+
+    zmins
 end
 
-
+p = plot(;
+         xlabel="Δ/2π",
+         #xaxis=:log,
+         ylabel="z/zR",
+)
 zmins = []
 ωs = []
 for ω in ProgressBar(Ω)
@@ -46,13 +68,11 @@ for ω in ProgressBar(Ω)
     append!(ωs, [ω for _ in newmins])
 end
 
-p = plot(;
-         xlabel="Δ/2π",
-         ylabel="z/zR"
+scatter!(p,
+         ωs,
+         zmins./zR,
+         label="κ = $(round(κ/2π)) 2πHz"
 )
-
-scatter!(p, ωs, zmins./zR)
-
 savefig(p, plotsdir("full_z-$(now_nodots()).svg"))
 gui(p)
 
@@ -60,3 +80,4 @@ if !Base.isinteractive()
     println("hit enter to close")
     readline()
 end
+
