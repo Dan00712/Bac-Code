@@ -1,6 +1,7 @@
 module Laser
 
 using ForwardDiff
+∂ = ForwardDiff.derivative
 
 using ..Constants
 
@@ -52,17 +53,21 @@ function Hs(x, y, z, Δω, κ)
         )
 end
 
-function ∂zHs(x,y,z, Δω, κ)
-    ForwardDiff.derivative(r->Hs(x,y,r, Δω, κ), z)
+function ∂zHs(z, Δω, κ)
+    ∂(r->
+      -abs2(Et(0,0,r) + αeq_c(0,0,z, Δω, κ)*Ec(0, 0, r, Δω)),
+      z)
 end
 
 # Hessian of the Hamiltonian
 function HHs(x,y,z, Δω, κ)
-    ForwardDiff.hessian(r->Hs(r..., Δω, κ), [x, y, z])
+    ForwardDiff.hessian(r->
+      -abs2(Et(r[1], r[2], r[3]) + αeq_c(x, y, z, Δω, κ)*Ec(r[1], r[2], r[3], Δω)),
+      [x,y,z])
 end
 
 function γ(x,y,z, Δω, κ)
-    α/ħ * Ec(x,y,z, Δω)/(δc(x,y,z, Δω)^2 + κ^2/4)
+    α/ħ * Ec(x,y,z, Δω)^2/(δc(x,y,z, Δω)^2 + κ^2/4)
 end
 
 end # module
