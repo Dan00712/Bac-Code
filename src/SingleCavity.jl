@@ -3,7 +3,6 @@ module SingleCavity
 include("Util.jl")
 
 
-include("Newton.jl")
 include("Constants.jl")
 include("Laser.jl")
 
