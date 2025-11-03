@@ -20,7 +20,7 @@ using SingleCavity.Laser
 
 global_logger(ConsoleLogger(Info))
 
-Ω = range(0, log10(ω0)+85, length=200) .|> x-> 10^x
+Ω = range(0, 400e3, length=200) #.|> x-> 10^x
 #Ω = range(-10, ω0/1e6, length=75)
 Z = range(start=-2e2zR, stop=2e2zR, length=75) |> x-> BigFloat.(x)
 const κ = 2π *1.06e6/5e2
@@ -51,7 +51,7 @@ function get_zeros(f)
 			fz = f(z)
 
 			if fz * fprev < 0
-				push!(guesses, (z+zprev)/2)
+                push!(guesses, (zprev, z))
 			end
 			zprev = z
 			fprev = fz
@@ -69,7 +69,7 @@ end
 
 p = plot(;
          xlabel="Δ/2π",
-         xaxis=:log,
+#         xaxis=:log,
          ylabel="z/zR",
 #         legend=:bottom,
 )
