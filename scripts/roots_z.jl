@@ -20,25 +20,25 @@ using SingleCavity.Laser
 
 global_logger(ConsoleLogger(Info))
 
-Ω = range(0, 400e3, length=200) #.|> x-> 10^x
+Ω = range(0, 400, length=200) .* 1e3*2π  #.|> x-> 10^x
 #Ω = range(-10, ω0/1e6, length=75)
-Z = range(start=-2e2zR, stop=2e2zR, length=75) |> x-> BigFloat.(x)
-const κ = 2π *1.06e6/5e2
-#=Κ = 2π*1.06 *[
-                1e6,
-                1e5,
-                5e5,
-                1e4,
-       ]=#
+Z = range(start=-50e-6, stop=50e-6, length=200) |> x-> BigFloat.(x)
+const κ = 2π *18e3
+
 markers= [:rect, :star5, :xcross, :cross]
+function L_carlos(z, Δ, κ)
+	f0 = α/ħ * ħ*(Δ+ω0)/2/ϵ0/Vc * exp(-2*z^2/Wc^2)
+    Δmod = Δ - f0
+
+    (
+        4 * z * (f0 + Δmod) * (2 * f0 * (z^2 + zR^2) + Wc^2 * Δmod)
+        - 2 * f0 * Wc^2 * (-zR + k0 * (z^2 + zR^2)) * κ
+        + Wc^2 * z * κ^2
+       )/(Wc^2 * (z^2 + zR^2) * (4 * Δmod^2 + κ^2))
+end
 # function to minimize
 function L(z, Δω, κ)
-    fz = im * (k0 - zR/(z^2+zR^2)) - z/(z^2+zR^2)
-    gz = -2*z/Wc^2
-    γz = γ(0, 0, z, Δω, κ)
-    δz = δc(0, 0, z, Δω)
-
-    (1+γz*δz)*(real(fz)+ gz*γz*δz) + γz * κ/2 * (imag(fz) + gz*γz*κ/2)
+    L_carlos(z, Δω, κ)
 end
 
 function get_zeros(f)
@@ -70,7 +70,7 @@ end
 p = plot(;
          xlabel="Δ/2π",
 #         xaxis=:log,
-         ylabel="z/zR",
+         ylabel="z/μm",
 #         legend=:bottom,
 )
 zmins = []
@@ -83,7 +83,7 @@ end
    
 scatter!(p,
          ωs,
-         zmins./zR,
+         zmins.*1e6,
 #         label="κ = $((κ/2π)) 2πHz",
 #         group=stabilities,
 marker=:cross,
