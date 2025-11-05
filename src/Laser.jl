@@ -66,8 +66,4 @@ function HHs(x,y,z, Δω, κ)
       [x,y,z])
 end
 
-function γ(x,y,z, Δω, κ)
-    α/ħ * Ec(x,y,z, Δω)^2/(δc(x,y,z, Δω)^2 + κ^2/4)
-end
-
 end # module
