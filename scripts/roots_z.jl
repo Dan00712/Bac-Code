@@ -2,6 +2,7 @@ using DrWatson
 @quickactivate "SingleCavity"
 
 include(scriptsdir("shared_code.jl"))
+plotlyjs()
 global_logger(ConsoleLogger(Info))
 
 Ω = vcat(range(0, 400, length=100) .* 1e3*2π,  #.|> x-> 10^x,
@@ -26,18 +27,14 @@ for ω in ProgressBar(Ω)
     append!(ωs, [ω for _ in newmins])
 end
 
-stabilities = [ isstable(zmin, ω, κ) ? :stable : :unstable
-               for (ω, zmin) in zip(ωs, zmins)
-              ]
 
 scatter!(p,
          ωs/1e3,
          zmins.*1e6,
-         group=stabilities,
-marker=:cross,
+         marker=:cross,
 )
 
-savefig(p, plotsdir("full_z-$(now_nodots()).svg"))
+savefig(p, plotsdir("roots_z-$(now_nodots()).svg"))
 gui(p)
 
 if !Base.isinteractive()

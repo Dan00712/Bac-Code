@@ -2,6 +2,8 @@ using DrWatson
 @quickactivate "SingleCavity"
 
 include(scriptsdir("shared_code.jl"))
+gr()
+
 global_logger(ConsoleLogger(Info))
 
 Ω = vcat(range(0, 400, length=100) .* 1e3*2π,  #.|> x-> 10^x,
@@ -18,6 +20,8 @@ p = plot(;
          minorgrid=true,
          formatter=:plain,
 )
+
+@info "checking equilibrium positions ∀ ω ∈ Ω"
 zmins = []
 ωs = []
 for ω in ProgressBar(Ω)
@@ -26,22 +30,30 @@ for ω in ProgressBar(Ω)
     append!(ωs, [ω for _ in newmins])
 end
 
+
+@info "check stability of equilibrium positions"
 stabilities = [ isstable(zmin, ω, κ) ? :stable : :unstable
                for (ω, zmin) in zip(ωs, zmins)
               ]
 
+@info "save generated data"
+date = now_nodots()
+M = (Δω=ωs, zmin=zmins, stability=stabilities)
+mkpath(datadir("sims", "stability"))
+@save datadir("sims", "stability", "s-$date.jld2") M
+
+@info "do plot"
 scatter!(p,
          ωs/1e3,
          zmins.*1e6,
          group=stabilities,
-marker=:cross,
+         marker=:cross,
 )
 
-savefig(p, plotsdir("full_z-$(now_nodots()).svg"))
-gui(p)
+@info "save plot"
+savefig(p, plotsdir("stabilities-$date.svg"))
 
-if !Base.isinteractive()
-    println("hit enter to close")
-    readline()
+if Base.isinteractive()
+    gui(p)
 end
 

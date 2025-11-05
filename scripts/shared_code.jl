@@ -4,8 +4,6 @@ using Logging
 using ProgressBars
 
 using Plots
-plotlyjs()
-#gr()
 
 using DelimitedFiles
 using JLD2
