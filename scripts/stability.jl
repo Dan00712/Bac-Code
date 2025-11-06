@@ -2,12 +2,13 @@ using DrWatson
 @quickactivate "SingleCavity"
 
 include(scriptsdir("shared_code.jl"))
-gr()
+pgfplotsx()
 
 global_logger(ConsoleLogger(Info))
 
 Ω = vcat(range(0, 400, length=100) .* 1e3*2π,  #.|> x-> 10^x,
-         range(600e3, 800e3, length=50)) |> sort
+         range(690e3, 760e3, length=80)
+        ) |> sort
 Z = range(start=-2-6, stop=log10(50)-6, length=1500) |> x-> 10 .^x #|> x-> BigFloat.(x)
 const κ = 2π *18e3
 
@@ -43,15 +44,20 @@ mkpath(datadir("sims", "stability"))
 @save datadir("sims", "stability", "s-$date.jld2") M
 
 @info "do plot"
-scatter!(p,
-         ωs/1e3,
-         zmins.*1e6,
-         group=stabilities,
-         marker=:cross,
-)
+for (g, marker, color) in zip([:stable, :unstable], [:cross, :xcross], [:orange, :blue])
+    mask = stabilities .== g
+    scatter!(p,
+            ωs[mask]/1e3,
+            zmins[mask].*1e6,
+            marker=marker,
+            color=color,
+            label=string(g),
+    )
+end
 
 @info "save plot"
-savefig(p, plotsdir("stabilities-$date.svg"))
+savefig(p, plotsdir("stabilities-$date.tex"))
+savefig(p, plotsdir("stabilities.tex"))
 
 if Base.isinteractive()
     gui(p)

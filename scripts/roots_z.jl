@@ -5,8 +5,10 @@ include(scriptsdir("shared_code.jl"))
 plotlyjs()
 global_logger(ConsoleLogger(Info))
 
-Ω = vcat(range(0, 400, length=100) .* 1e3*2π,  #.|> x-> 10^x,
-         range(600e3, 800e3, length=50)) |> sort
+Ω = vcat(range(0, 400, length=200) .* 1e3*2π,  #.|> x-> 10^x,
+         range(690e3, 700e3, length=50),
+         range(740e3, 760e3, length=50)
+        ) |> sort
 Z = range(start=-2-6, stop=log10(50)-6, length=1500) |> x-> 10 .^x #|> x-> BigFloat.(x)
 const κ = 2π *18e3
 

@@ -2,10 +2,11 @@ using DrWatson
 @quickactivate "SingleCavity"
 
 include(scriptsdir("shared_code.jl"))
-gr()
+pgfplotsx()
 global_logger(ConsoleLogger(Info))
 
-Ω = range(0, 600, length=150) .* 1e3*2π  #.|> x-> 10^x,
+Ω = vcat(range(0, 400, length=250) .* 1e3*2π,  #.|> x-> 10^x,
+        ) |> sort
 Z = range(start=-2-6, stop=log10(50)-6, length=1500) |> x-> 10 .^x #|> x-> BigFloat.(x)
 Κ = 2π * [
           9e4,
@@ -24,7 +25,7 @@ p = plot(;
 )
 
 @info "generating data ∀ κ ∈ Κ"
-for κ in Κ
+for (κ, color, marker) in zip(Κ, ["orange", "green", "blue"] ,[:cross, :xcross, :star5])
     zmins = []
     ωs = []
     for ω in ProgressBar(Ω)
@@ -36,12 +37,15 @@ for κ in Κ
     scatter!(p,
              ωs/1e3,
              zmins.*1e6,
-             label="κ=$(κ/2π /1e3) 2πkHz"
+             label="κ=$(κ/2π /1e3) 2πkHz",
+             marker=marker,
+             color=color
     )
 end
 
 @info "save plot"
-savefig(p, plotsdir("kappas-$(now_nodots()).svg"))
+savefig(p, plotsdir("kappas-$(now_nodots()).tex"))
+savefig(p, plotsdir("kappas.tex"))
 
 if Base.isinteractive()
     gui(p)
