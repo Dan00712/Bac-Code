@@ -23,10 +23,10 @@ p = plot(;
 )
 zmins = []
 ωs = []
-for ω in ProgressBar(Ω)
-    newmins = get_zeroes(z->L(z, ω, κ), Z)
-    append!(zmins, newmins)
-    append!(ωs, [ω for _ in newmins])
+for z in ProgressBar(Z)
+    ωs_ = get_zeroes(ω->L(z, ω, κ), Ω)
+    append!(zmins, [z for _ in ωs_])
+    append!(ωs, ωs_)
 end
 
 
