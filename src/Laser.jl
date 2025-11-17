@@ -61,9 +61,16 @@ end
 
 # Hessian of the Hamiltonian
 function HHs(x,y,z, Δω, κ)
-    ForwardDiff.hessian(r->
-      -abs2(Et(r[1], r[2], r[3]) + αeq_c(x, y, z, Δω, κ)*Ec(r[1], r[2], r[3], Δω)),
-      [x,y,z])
+    α = αeq_c(x,y,z, Δω, κ)
+    function f(r)
+        ωc = ω0 + Δω
+        a = r[4] + im*r[5]
+        a_ = conj(a)
+
+        ħ*ωc *real(a*a_) -abs2(Et(r[1], r[2], r[3]) + a*Ec(r[1], r[2], r[3], Δω))
+    end
+    real.(ForwardDiff.hessian(r->f(r),
+                              [x,y,z, real(α), imag(α)]))
 end
 
 end # module
