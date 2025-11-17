@@ -2,7 +2,6 @@ using DrWatson
 @quickactivate "SingleCavity"
 
 include(scriptsdir("shared_code.jl"))
-pgfplotsx()
 global_logger(ConsoleLogger(Info))
 
 Ω = vcat(range(0, 400, length=250) .* 1e3*2π,  #.|> x-> 10^x,
@@ -44,10 +43,11 @@ for (κ, color, marker) in zip(Κ, ["orange", "green", "blue"] ,[:cross, :xcross
 end
 
 @info "save plot"
-savefig(p, plotsdir("kappas-$(now_nodots()).tex"))
-savefig(p, plotsdir("kappas.tex"))
 
 if Base.isinteractive()
+    savefig(p, plotsdir("kappas-$(now_nodots()).png"))
     gui(p)
+else
+    savefig(p, plotsdir("kappas.tex"))
 end
 

@@ -4,6 +4,11 @@ using Logging
 using ProgressBars
 
 using Plots
+if isinteractive()
+    plotlyjs()
+else
+    pgfplotsx()
+end
 
 using DelimitedFiles
 using JLD2
@@ -24,4 +29,13 @@ function L(z, Δω, κ)
 	)
 end
 
-isstable(z, Δω, κ) = isposdef(HHs(0, 0, z, Δω, κ)) 
+function issemiposdef(A; tol = 1e-10)
+    H = Hermitian(A)  # ensures Hermitian view, symmetrizes if needed
+    λmin = minimum(eigvals(H))
+    return λmin >= -tol
+end
+
+isstable(z, Δω, κ) = isposdef(HHs(0, 0, z, Δω, κ))
+issemistable(z, Δω, κ) = issemiposdef(HHs(0, 0, z, Δω, κ))
+
+

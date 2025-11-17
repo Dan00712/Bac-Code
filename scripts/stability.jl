@@ -2,7 +2,6 @@ using DrWatson
 @quickactivate "SingleCavity"
 
 include(scriptsdir("shared_code.jl"))
-pgfplotsx()
 
 global_logger(ConsoleLogger(Info))
 
@@ -33,7 +32,7 @@ end
 
 
 @info "check stability of equilibrium positions"
-stabilities = [ isstable(zmin, ω, κ) ? :stable : :unstable
+stabilities = [ if isstable(zmin, ω, κ) "stable" elseif issemistable(zmin, ω, κ) "semistable" else "unstable" end
                for (ω, zmin) in zip(ωs, zmins)
               ]
 
@@ -44,7 +43,7 @@ mkpath(datadir("sims", "stability"))
 @save datadir("sims", "stability", "s-$date.jld2") M
 
 @info "do plot"
-for (g, marker, color) in zip([:stable, :unstable], [:cross, :xcross], [:orange, :blue])
+for (g, marker, color) in zip(["stable", "unstable", "semitstable"], [:cross, :xcross, :star5], [:orange, :blue])
     mask = stabilities .== g
     scatter!(p,
             ωs[mask]/1e3,
@@ -56,10 +55,9 @@ for (g, marker, color) in zip([:stable, :unstable], [:cross, :xcross], [:orange,
 end
 
 @info "save plot"
-savefig(p, plotsdir("stabilities-$date.tex"))
-savefig(p, plotsdir("stabilities.tex"))
-
-if Base.isinteractive()
+if isinteractive()
+    savefig(p, plotsdir("stabilities-$date.png"))
     gui(p)
+else
+    savefig(p, plotsdir("stabilities-$date.tex"))
 end
-

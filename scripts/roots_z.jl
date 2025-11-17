@@ -29,7 +29,6 @@ for z in ProgressBar(Z)
     append!(ωs, ωs_)
 end
 
-
 scatter!(p,
          ωs/1e3,
          zmins.*1e6,
