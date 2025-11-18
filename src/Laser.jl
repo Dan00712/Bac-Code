@@ -54,8 +54,10 @@ function Hs(x, y, z, Δω, κ)
 end
 
 function ∂zHs(z, Δω, κ)
+    a = αeq_c(0,0,z, Δω, κ)
+    ωc = ω0 + Δω
     ∂(r->
-      -abs2(Et(0,0,r) + αeq_c(0,0,z, Δω, κ)*Ec(0, 0, r, Δω)),
+      ħ*ωc*abs2(a) - abs2(Et(0,0,r) + a*Ec(0, 0, r, Δω)),
       z)
 end
 
@@ -65,12 +67,15 @@ function HHs(x,y,z, Δω, κ)
     function f(r)
         ωc = ω0 + Δω
         a = r[4] + im*r[5]
-        a_ = conj(a)
-
-        ħ*ωc *real(a*a_) -abs2(Et(r[1], r[2], r[3]) + a*Ec(r[1], r[2], r[3], Δω))
+        as = conj(a)
+        Etot2 = abs2((Et(r[1], r[2], r[3]) + a*Ec(r[1], r[2], r[3], Δω)))
+                # Etot * conj(Etot)
+        
+        ħ*ωc *real(a*as) - Etot2
     end
-    real.(ForwardDiff.hessian(r->f(r),
-                              [x,y,z, real(α), imag(α)]))
+    @assert ∂zHs(z, Δω, κ) .< 1e10
+    ForwardDiff.hessian(r->f(r),
+                         [x,y,z, real(α), imag(α)])
 end
 
 end # module
