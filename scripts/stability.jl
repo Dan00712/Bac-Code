@@ -24,10 +24,10 @@ p = plot(;
 @info "checking equilibrium positions ∀ ω ∈ Ω"
 zmins = []
 ωs = []
-for ω in ProgressBar(Ω)
-    newmins = get_zeroes(z->L(z, ω, κ), Z)
-    append!(zmins, newmins)
-    append!(ωs, [ω for _ in newmins])
+for z in ProgressBar(Z)
+    ωs_ = get_zeroes(ω->L(z, ω, κ), Ω)
+    append!(zmins, [z for _ in ωs_])
+    append!(ωs, ωs_)
 end
 
 
@@ -45,6 +45,9 @@ mkpath(datadir("sims", "stability"))
 @info "do plot"
 for (g, marker, color) in zip(["stable", "unstable", "semitstable"], [:cross, :xcross, :star5], [:orange, :blue])
     mask = stabilities .== g
+    if !any(mask)
+        continue
+    end
     scatter!(p,
             ωs[mask]/1e3,
             zmins[mask].*1e6,
@@ -55,9 +58,11 @@ for (g, marker, color) in zip(["stable", "unstable", "semitstable"], [:cross, :x
 end
 
 @info "save plot"
+
 if isinteractive()
     savefig(p, plotsdir("stabilities-$date.png"))
     gui(p)
 else
-    savefig(p, plotsdir("stabilities-$date.tex"))
+    savefig(p, plotsdir("stabilities.tex"))
 end
+
