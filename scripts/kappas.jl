@@ -6,7 +6,7 @@ global_logger(ConsoleLogger(Info))
 
 Ω = vcat(range(0, 800, length=400) .* 1e3*2π,  #.|> x-> 10^x,
         ) |> sort
-Z = range(start=-2-6, stop=log10(50)-6, length=1500) |> x-> 10 .^x #|> x-> BigFloat.(x)
+Z = range(start=-2-6, stop=log10(50)-6, length=400) |> x-> 10 .^x #|> x-> BigFloat.(x)
 Κ = 2π * [
           1.5e6,
           1e6,
@@ -44,10 +44,9 @@ end
 
 @info "save plot"
 
+savefig(p, plotsdir("kappas-$(now_nodots()).png"))
+savefig(p, plotsdir("kappas.pdf"))
 if isinteractive()
-    savefig(p, plotsdir("kappas-$(now_nodots()).png"))
     gui(p)
-else
-    savefig(p, plotsdir("kappas.tex"))
 end
 

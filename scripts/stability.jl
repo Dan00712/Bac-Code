@@ -8,8 +8,8 @@ global_logger(ConsoleLogger(Info))
 Ω = vcat(range(0, 400, length=100) .* 1e3*2π,  #.|> x-> 10^x,
          range(690e3, 760e3, length=80)
         ) |> sort
-Z = range(start=-2-6, stop=log10(50)-6, length=1500) |> x-> 10 .^x #|> x-> BigFloat.(x)
-const κ = 2π *18e3
+Z = range(start=-2-6, stop=log10(50)-6, length=200) |> x-> 10 .^x #|> x-> BigFloat.(x)
+const κ = 2π *18e4
 
 p = plot(;
          title="κ=$((κ/2π/1000)) 2πkHz",
@@ -32,7 +32,7 @@ end
 
 
 @info "check stability of equilibrium positions"
-stabilities = [ if isstable(zmin, ω, κ) "stable" elseif issemistable(zmin, ω, κ) "semistable" else "unstable" end
+stabilities = [ if isstable(zmin, ω, κ) "stable" else "unstable" end
                for (ω, zmin) in zip(ωs, zmins)
               ]
 
@@ -43,7 +43,7 @@ mkpath(datadir("sims", "stability"))
 @save datadir("sims", "stability", "s-$date.jld2") M
 
 @info "do plot"
-for (g, marker, color) in zip(["stable", "unstable", "semitstable"], [:cross, :xcross, :star5], [:orange, :blue])
+for (g, marker, color) in zip(["stable", "unstable"], [:cross, :xcross, :star5], [:orange, :blue])
     mask = stabilities .== g
     if !any(mask)
         continue
@@ -59,10 +59,9 @@ end
 
 @info "save plot"
 
+savefig(p, plotsdir("stabilities-$date.png"))
+savefig(p, plotsdir("stabilities.pdf"))
 if isinteractive()
-    savefig(p, plotsdir("stabilities-$date.png"))
     gui(p)
-else
-    savefig(p, plotsdir("stabilities.tex"))
 end
 
