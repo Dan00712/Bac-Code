@@ -1,6 +1,8 @@
 module Laser
+using LinearAlgebra
 
 using ForwardDiff
+
 ∂ = ForwardDiff.derivative
 
 using ..Constants
@@ -61,22 +63,55 @@ function ∂zHs(z, Δω, κ)
       z)
 end
 
+function map_real2imag(H, n)
+    N = size(H,1)
+    Hc = ComplexF64.(H)
+
+    T = Matrix{ComplexF64}(I, N, N)
+
+    T[n,   n]   = 1/2
+    T[n,   n+1] = -im/2
+    T[n+1,n]   = 1/2
+    T[n+1,n+1] =  im/2
+
+    Hnew = T * Hc * T'
+
+    keep = [1:n; n+2:N]
+
+    return Hnew[keep, keep]
+end
+
 # Hessian of the Hamiltonian
-function HHs(x,y,z, Δω, κ)
+function HHs(x, y, z, Δω, κ)
     αeq = αeq_c(x,y,z, Δω, κ)
-    function f(r)
+    function f(r, p)
         ωc = ω0 + Δω
-        a = r[4] + im*r[5]
-        as = conj(a)
-        Etot2 = abs2((Et(r[1], r[2], r[3]) + a*Ec(r[1], r[2], r[3], Δω)))
-                # Etot * conj(Etot)
+        a = r[4] + im * r[5]
+        as = p[4] + im * p[5]
+        Etot2 = real((Et(r[1], r[2], r[3]) + a*Ec(r[1], r[2], r[3], Δω)) *
+						(conj(Et(r[1], r[2], r[3])) + as*Ec(r[1], r[2], r[3], Δω))
+					)
+                #Etot * conj(Etot)
         
-        ħ*ωc *real(a*as) - α*Etot2
+        (p[1]^2+p[2]^2+p[3]^2)/2m + ħ*ωc *real(a*as) - α*Etot2
     end
-    @assert ∂zHs(z, Δω, κ) .< 1e10
-    ForwardDiff.hessian(r->f(r),
-                        [x,y,z , real(αeq), imag(αeq)]
+    #@assert ∂zHs(z, Δω, κ) .< 1e10
+	cr = 1e9
+	ca = 1e16
+	dr = 1/cr
+	da = 1e16
+	
+    HH_ = ForwardDiff.hessian(η->f(
+			[cr*η[1], cr*η[2], cr*η[3], ca*η[4], ca*η[5]], 
+			[dr*η[6], dr*η[7], dr*η[8], da*η[9], da*η[10]]),
+                        [x, y, z, real(αeq), imag(αeq), 
+						 0, 0, 0, imag(αeq), -imag(αeq)]
                        )
+	
+	HH_ = map_real2imag(HH_, 9)	
+	HH_ = map_real2imag(HH_, 4)
+
+	HH_
 end
 
 end # module

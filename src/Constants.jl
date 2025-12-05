@@ -1,6 +1,6 @@
 module Constants
 
-export ħ, ϵ0, c, λ0, k0, ω0, Pt, Wt, Ax, Ay, E0, zR, ρ, ϵ, α, Wc, Lc, Vc, κ, ζ
+export ħ, ϵ0, c, λ0, k0, ω0, Pt, Wt, Ax, Ay, E0, zR, ρ, ϵ, α, Wc, Lc, Vc, κ, ζ, m
 
 
 # using SI Units
@@ -41,6 +41,7 @@ const Lc = 19.8e-3      # m
 # const E0c =           # function of \omega_c
 # keep ω_0 = const
 const Vc = π*Wc^2*Lc/4
+const m = ρ * (4/3 * π * R^3)
 
 const ζ = 1
 
