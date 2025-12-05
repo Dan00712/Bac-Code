@@ -7,7 +7,7 @@ using Plots
 if isinteractive()
     plotlyjs()
 else
-    pgfplotsx()
+    gr()
 end
 
 using DelimitedFiles
@@ -29,13 +29,29 @@ function L(z, Δω, κ)
 	)
 end
 
-function issemiposdef(A; tol = 1e-10)
-    H = Hermitian(A)  # ensures Hermitian view, symmetrizes if needed
-    λmin = minimum(eigvals(H))
-    return λmin >= -tol
+function isstable(z, Δω, κ)
+	S = HHs(0,0, z, Δω, κ)
+	N = Int(size(S, 1) // 2)
+	J = let
+		A = I(N) .|> ComplexF64
+		A[N, N] = 1/im /ħ
+		[zeros(N,N)  A ; -A zeros(N,N)]
+	end
+	K = let
+		B = zeros(N, N) .|> ComplexF64
+		B[N,N] = κ/2
+		[
+			B 			zeros(N,N);
+			zeros(N,N) 	B
+		]
+	end
+
+	A = J*S - K
+	V = eigen(A).values
+	ReV = real.(V)
+
+    tol = 1e-9
+	#@show ma, mi
+	foo(x) = isapprox(x, 0; atol=tol) || x < 0
+	foo.(ReV) |> all
 end
-
-isstable(z, Δω, κ) = isposdef(HHs(0, 0, z, Δω, κ))
-issemistable(z, Δω, κ) = issemiposdef(HHs(0, 0, z, Δω, κ))
-
-
